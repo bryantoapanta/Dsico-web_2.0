@@ -32,26 +32,23 @@ function modeloUserInit()
 
 // Comprueba usuario y contraseña (boolean)
 function modeloOkUser($user, $clave)
-{   
-    //Comprobamos la contrase�a
-    foreach($_SESSION['tusuarios'] as $key => $valor){
-        //comprobamos si el usuario existe
-       // echo "usuario: ",$key;
-        if($user==$key){
-            echo "usuario: ",$key,"Contra: ",$valor[0];
-            //devolvemos el usuario y la contrase�a.En el index se comprobara si la contrase�a coincide
+{
+    // Comprobamos la contrase�a
+    foreach ($_SESSION['tusuarios'] as $key => $valor) {
+        // comprobamos si el usuario existe
+        // echo "usuario: ",$key;
+        if ($user == $key) {
+            echo "usuario: ", $key, "Contra: ", $valor[0];
+            // devolvemos el usuario y la contrase�a.En el index se comprobara si la contrase�a coincide
             return ($user == $key) && ($clave == $valor[0]);
-            
         }
-        
     }
-    return ;
-    
+    return;
 }
 
 // Devuelve el plan de usuario (String)
 function modeloObtenerTipo($user)
-{   
+{
     return PLANES[3]; // Máster
 }
 
@@ -131,9 +128,25 @@ function modeloUserSave()
     // fclose($fich);
 }
 
-function cumplerequisitos($clave1,$clave2){
-    if ($clave1==$clave2){
-        return true;
+function cumplerequisitos($clave1, $clave2, $user, $email)
+{
+    $ok = false;
+    
+    if ($clave1 == $clave2 && strlen($clave1)>=8) { // si la clave coincide y es mayor de 8 caracteres ok es true
+        $ok = true;
     }
-    return false;
+    else{return false;}
+
+    foreach ($_SESSION['tusuarios'] as $clave => $datosusuario) { // recorremos para comprobar si existe ,o no, el email o usuario
+
+        if ($clave != $user && $datosusuario[2] != $email) { // si el usuario no existe y el correo tampoco
+
+            $ok = true;
+        } else {
+            return false;
+        }
+    }
+
+    
+    return $ok;
 }

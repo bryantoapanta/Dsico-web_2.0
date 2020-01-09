@@ -94,7 +94,7 @@ function ctlUserAlta()
         echo $id;
         var_dump($data);
         // modeloUserAdd($id, $data);
-        if (cumplerequisitos($_POST["clave1"], $_POST["clave2"])) {
+        if (cumplerequisitos($_POST["clave1"], $_POST["clave2"],$_POST["iduser"],$_POST["email"])) {
             if (modeloUserAdd($id, $data)) {
                 $msg = "El usuario fue creado con éxito";
             }
@@ -124,7 +124,7 @@ function ctlUserAltaUser()
         echo $id;
         var_dump($data);
         // modeloUserAdd($id, $data);
-        if (cumplerequisitos($_POST["clave1"], $_POST["clave2"])) {
+        if (cumplerequisitos($_POST["clave1"], $_POST["clave2"],$_POST["iduser"],$_POST["email"])) {
             if (modeloUserAdd($id, $data)) {
                 $msg = "El usuario fue creado con éxito";
             }
@@ -156,14 +156,18 @@ function ctlUserModificar()
                 $estado
             ];
             
-            if (cumplerequisitos($_POST["clave1"], $_POST["clave2"])) {
+          //  if (cumplecontra($_POST["clave1"], $_POST["clave2"],$_POST["iduser"],$_POST["email"])) {
             if (modeloUserUpdate($id, $modificado)) {
                 $msg = "El usuario fue modificado con éxito";
-            }} else {
+          //  }
+            } 
+          else {
                 $msg = "El usuario no pudo ser modificado";
             }
         }
     } else {
+        
+        //al pulsar en modificar le paso el id, con ese id sacamos los datos del id(usuario) para, que luego se mostraran a la hora de modificar
         $user = $_GET['id'];
         $datosusuario = $_SESSION["tusuarios"][$user];
         $clave = $datosusuario[0];
