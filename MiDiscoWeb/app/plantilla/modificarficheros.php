@@ -10,7 +10,7 @@ ob_start();
 </div>
 <center>
 	<h1 class="paginas">MODIFICAR USUARIO <?= $user ?> </h1>
-	<form name='modificar' method="POST" action="index.php?orden=Modificar" >
+	<form name='modificar' method="POST" action="index.php?operacion=Modificar" >
 		<!-- COMPLETAR -->
 		<table id="fmodificar">
 			<tr>
@@ -27,11 +27,11 @@ ob_start();
 			</tr>
 			<tr>
 				<td>Contraseña</td>
-				<td><input type="password" name="clave1" value="<?= $clave ?>"></td>
+				<td><input type="text" name="clave1" value="<?= $clave ?>"></td>
 			</tr>
 			<tr>
 				<td>Repetir contraseña</td>
-				<td><input type="password" name="clave2" value="<?= $clave ?>"></td>
+				<td><input type="text" name="clave2" value="<?= $clave ?>"></td>
 			</tr>
 			<tr>
 				<td>Plan</td>
@@ -39,22 +39,14 @@ ob_start();
 						<option value="0" <?= ($plan==0)?"selected=\"selected\"":""; ?>>Básico</option>
 						<option value="1" <?= ($plan==1)?"selected=\"selected\"":""; ?>>Profesional</option>
 						<option value="2" <?= ($plan==2)?"selected=\"selected\"":""; ?>>Premium</option>
-						<option value="3" <?= ($plan==3)?"selected=\"selected\"":""; ?>>Máster</option>
+						
 				</select></td>
 			</tr>
-			<tr>
-				<td>Estado</td>
-				<td><select name="estado">
-						<option value="A" <?= ($estado=="A")?"selected=\"selected\"":""; ?>>Activo</option>
-						<option value="I" <?= ($estado=="I")?"selected=\"selected\"":""; ?>>Inactivo</option>
-						<option value="B" <?= ($estado=="B")?"selected=\"selected\"":""; ?>>Bloqueado</option>
-
-				</select></td>
-			</tr>
+			
 		</table>
 		
 		<p><input type='button' name="orden" value='Volver'
-			onclick="verUsuarios()"> <input type='submit' value='Modificar'>
+			onclick="verFicheros()"> <input type='submit' value='Modificar'>
 			</p>
 	</form>
 </center>

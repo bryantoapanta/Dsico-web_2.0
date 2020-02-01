@@ -26,10 +26,10 @@ function ctlUserInicio()
                         header('Location:index.php?orden=VerUsuarios');
                     }
                 } else {
-                    ($_SESSION['modo'] = "0");
+                    ($_SESSION['modo'] = GESTIONFICHEROS);
+                    header('Location:index.php?operacion=VerFicheros');
                     // Usuario normal;
                     // PRIMERA VERSIÓN SOLO USUARIOS ADMISTRADORES
-                    $msg = "Error: Acceso solo permitido a usuarios Administradores.";
                     // $_SESSION['modo'] = GESTIONFICHEROS;
                     // Cambio de modo y redireccion a verficheros
                 }
@@ -38,10 +38,10 @@ function ctlUserInicio()
             }
         }
     }
-
+    
     if (isset($_GET['orden']) == "AltaUser"){
         // La orden tiene una funcion asociada
-            $procRuta =  "ctlUserAltaUser";
+        $procRuta =  "ctlUserAltaUser";
     }
     include_once 'plantilla/facceso.php';
 }
@@ -55,7 +55,7 @@ function ctlUserCerrar()
 }
 
 // Muestro la tabla con los usuario
-function ctlUserVerUsuarios()
+function ctlUserVerUsuarios($msg)
 {
     // Obtengo los datos del modelo
     $usuarios = modeloUserGetAll();
@@ -67,13 +67,13 @@ function ctlUserBorrar()
 {
     $msg = "";
     $user = $_GET['id'];
-    if (modeloUserDel($user)) {
+    if (modeloUserDelfichero($user)) {
         $msg = "El usuario se borró correctamente.";
     } else {
         $msg = "No se pudo borrar el usuario.";
     }
     modeloUserSave();
-    ctlUserVerUsuarios();
+    ctlUserVerUsuarios($msg);
 }
 
 function ctlUserAlta()
@@ -94,15 +94,16 @@ function ctlUserAlta()
         echo $id;
         var_dump($data);
         // modeloUserAdd($id, $data);
-        if (cumplerequisitos($_POST["clave1"], $_POST["clave2"],$_POST["iduser"],$_POST["email"])) {
+        if (cumplerequisitos($_POST["clave1"], $_POST["clave2"],$_POST["iduser"],$_POST["email"],$msg)) {
             if (modeloUserAdd($id, $data)) {
                 $msg = "El usuario fue creado con éxito";
             }
         } else {
-            $msg = "El usuario no fue creado";
+            $msg .="<br>El usuario no fue creado";
+            include_once "plantilla/fnuevoAdmin.php";
         }
         modeloUserSave();
-        ctlUserVerUsuarios();
+        ctlUserVerUsuarios($msg);
     }
 }
 
@@ -124,7 +125,7 @@ function ctlUserAltaUser()
         echo $id;
         var_dump($data);
         // modeloUserAdd($id, $data);
-        if (cumplerequisitos($_POST["clave1"], $_POST["clave2"],$_POST["iduser"],$_POST["email"])) {
+        if (cumplerequisitos($_POST["clave1"], $_POST["clave2"],$_POST["iduser"],$_POST["email"],$msg)) {
             if (modeloUserAdd($id, $data)) {
                 $msg = "El usuario fue creado con éxito";
             }
@@ -139,7 +140,7 @@ function ctlUserAltaUser()
 function ctlUserModificar()
 {
     $msg = "";
-
+    
     if ($_SERVER['REQUEST_METHOD'] == "POST") {
         if (isset($_POST['clave1']) && isset($_POST['email']) && isset($_POST['estado']) && isset($_POST['nombre']) && isset($_POST['plan'])) {
             $id = $_POST['iduser'];
@@ -156,12 +157,12 @@ function ctlUserModificar()
                 $estado
             ];
             
-          //  if (cumplecontra($_POST["clave1"], $_POST["clave2"],$_POST["iduser"],$_POST["email"])) {
+            //  if (cumplecontra($_POST["clave1"], $_POST["clave2"],$_POST["iduser"],$_POST["email"])) {
             if (modeloUserUpdate($id, $modificado)) {
                 $msg = "El usuario fue modificado con éxito";
-          //  }
-            } 
-          else {
+                //  }
+            }
+            else {
                 $msg = "El usuario no pudo ser modificado";
             }
         }
@@ -178,7 +179,7 @@ function ctlUserModificar()
         include_once 'plantilla/fmodificar.php';
     }
     modeloUserSave();
-    ctlUserVerUsuarios();
+    ctlUserVerUsuarios($msg);
 }
 
 function ctlUserDetalles()

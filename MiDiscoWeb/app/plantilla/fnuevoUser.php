@@ -10,7 +10,7 @@ ob_start();
 </div>
 <center>
 
-	<h1>Crear nuevo usuario</h1>
+	<h1 class="paginas">Crear nuevo usuario</h1>
 
 	<form name='ALTA' method="POST" action="index.php?orden=AltaUser">
 		<!-- COMPLETAR -->

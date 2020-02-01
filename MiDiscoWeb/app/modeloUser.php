@@ -28,6 +28,13 @@ function modeloUserInit()
         $tusuarios = json_decode($datosjson, true);
         $_SESSION['tusuarios'] = $tusuarios;
     }
+
+    // SI LA SESION FICHEROS NO EXISTE , CREO UNA Y CARGO LOS DATOS
+    if (! isset($_SESSION['ficheros'])) {
+        $datosjson = @file_get_contents(FILE) or die("ERROR al abrir fichero de datos");
+        $ficheros = json_decode($datosjson, true);
+        $_SESSION['ficheros'] = $ficheros;
+    }
 }
 
 // Comprueba usuario y contraseña (boolean)
@@ -73,12 +80,14 @@ function modeloUserAdd($userid, $userdat)
     return true;
 }
 
+// A�ADIR DATOS DE FICHERO
+
 // Actualizar un nuevo usuario (boolean)
 function modeloUserUpdate($userid, $userdat)
 {
     foreach ($_SESSION['tusuarios'] as $clave => $valor) {
         if ($clave == $userid) {
-            $_SESSION['tusuarios'][$userid] = $userdat;
+            $_SESSION['tusuarios'][$userid] = $userdat; // ACTUALIZA TODO EXCEPTO EL USERID
         }
     }
     return true;
@@ -126,27 +135,152 @@ function modeloUserSave()
     $datosjon = json_encode($_SESSION['tusuarios']);
     file_put_contents(FILEUSER, $datosjon) or die("Error al escribir en el fichero.");
     // fclose($fich);
+    // GUARDAR DATOS FICHEROS
+    $datosficherojon = json_encode($_SESSION['ficheros']);
+    file_put_contents(FILE, $datosficherojon) or die("Error al escribir en el fichero.");
 }
 
-function cumplerequisitos($clave1, $clave2, $user, $email)
+function cumplerequisitos($clave1, $clave2, $user, $email, &$msg)
 {
+    $may = false;
+    $min = false;
+    $dig = false;
     $ok = false;
-    
-    if ($clave1 == $clave2 && strlen($clave1)>=8) { // si la clave coincide y es mayor de 8 caracteres ok es true
-        $ok = true;
+    for ($i = 0; $i < strlen($clave1); $i ++) {
+        if ($clave1[$i] == strtoupper($clave1[$i])) {
+            $may = true;
+        }
+        if ($clave1[$i] == strtolower($clave1[$i])) {
+            $min = true;
+        }
+        if ($clave1[$i] == is_numeric($clave1[$i])) {
+            $dig = true;
+        }
     }
-    else{return false;}
+    if ($may == false || $min == false) {
+        $msg .= "La contraseña no cumple los requisitos";
+        return false;
+    }
+
+    if ($may == true && $min == true && $dig == true && $clave1 == $clave2 && strlen($clave1) >= 8) { // si la clave coincide y es mayor de 8 caracteres ok es true
+        $ok = true;
+    } else {
+        $msg = "La contraseña no cumple los requisitos";
+        ;
+        return false;
+    }
 
     foreach ($_SESSION['tusuarios'] as $clave => $datosusuario) { // recorremos para comprobar si existe ,o no, el email o usuario
-
         if ($clave != $user && $datosusuario[2] != $email) { // si el usuario no existe y el correo tampoco
-
             $ok = true;
         } else {
+            $msg = "El usuario o email ya existe";
             return false;
         }
     }
-
-    
     return $ok;
+}
+
+// MODELO USER FICHEROS--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+function modeloUserGetFiles()
+{
+    $tuservista = [];
+    // REALIZAMOS UN FOR-EACH PARA SACAR LOS DATOS DEL USUARIO CONECTADO. EL USUARIO LO SACAMOS A ATRAVES DE $_SESSION["USER"]
+    foreach ($_SESSION['ficheros'] as $clave => $datosusuario) {
+        if ($clave == $_SESSION["user"]) {
+            $tuservista[$clave] = [
+                $datosusuario[0],
+                $datosusuario[1],
+                $datosusuario[2],
+                $datosusuario[3],
+               // $datosusuario[4]
+            ];
+        }
+    }
+    return $tuservista;
+}
+
+// A�ADIR DATOS DE FICHERO
+function modeloficheroAdd($userid, $userdat)
+{
+    $_SESSION["ficheros"][$userid] = $userdat;
+    return true;
+}
+
+// SUBIR ARCHIVO A LA "NUBE"
+function modelouserSubirfichero($directorioSubida, $nombreFichero, $tipoFichero, $tamanioFichero, $temporalFichero, $errorFichero, &$msg)
+{
+    // Obtengo el código de error de la operación, 0 si todo ha ido bien
+    if ($errorFichero > 0) {
+        $msg .= "Se a producido el error: $errorFichero:" . $codigosErrorSubida[$errorFichero] . ' <br />';
+        return FALSE;
+    } else { // subida correcta del temporal
+             // si es un directorio y tengo permisos
+        if (is_dir($directorioSubida) && is_writable($directorioSubida)) {
+            // Intento mover el archivo temporal al directorio indicado
+            if (move_uploaded_file($temporalFichero, $directorioSubida . '/' . $nombreFichero) == true) {
+                // $msg .= 'Archivo guardado en: ' . $directorioSubida .'/'. $nombreFichero . ' <br />';
+                $msg = "Archivo guardado con exito";
+                return true;
+            } else {
+                $msg .= 'ERROR: Archivo no guardado correctamente <br />';
+                return false;
+            }
+        } else {
+            $msg .= 'ERROR: No es un directorio correcto o no se tiene permiso de escritura <br />';
+            return FALSE;
+        }
+    }
+}
+
+//DESCARGAR FICHERO
+function modelouserDescargar($nombrefichero,$directorio,&$msg){
+    //OBTENGO EL NOMBRE DEL FICHERO
+        $fileName = basename($nombrefichero);
+    //OBTENGO LA RUTA COMPLETA DEL FICHERO    
+        $filePath = $directorio."\\".$fileName;
+    //SI NO ESTA VACIO Y EXISTE LA RUTA
+        if(!empty($fileName) && file_exists($filePath)){
+            // Define headers
+            header("Cache-Control: public");
+            header("Content-Description: File Transfer");
+            header("Content-Disposition: attachment; filename=$fileName");
+            header("Content-Type: application/zip");
+            header("Content-Transfer-Encoding: binary");
+            
+            // Read the file
+            readfile($filePath);
+            $msg="Archivo descargado";
+            exit;
+        }else{
+            $msg= 'The file does not exist.';
+            
+        }
+    
+}
+
+//BORRAR DATOS FICHERO
+FUNCTION modeloUserDelfichero($user){
+    $borrado = false;
+    foreach ($_SESSION["ficheros"] as $clave => $valor) {
+        if ($clave == $user) {
+            unset($_SESSION["ficheros"][$clave]);
+            array_values($_SESSION["ficheros"]);
+            $borrado = true;
+        }
+    }
+    return $borrado;
+}
+
+//RENOMBRAR ARCHIVO
+FUNCTION modeloUserRenamefichero($user,$nombre){
+    $rename = false;
+    foreach ($_SESSION["ficheros"] as $clave => $valor) {
+        if ($clave == $user) {
+            //SI SE ENCUENTRA EL USUARIO, CAMBIAMOS EL NOMBRE DEL ARCHIVO POR EL NUEVO VALOR.
+          $_SESSION["ficheros"][$clave][0]=$nombre;
+          $rename=true;
+        }
+    }
+    return $rename;
 }

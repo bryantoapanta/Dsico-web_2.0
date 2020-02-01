@@ -17,7 +17,7 @@ foreach ($usuarios as $clave => $datosusuario) { // clave-->usuario $datosusuari
     ?>
 
 <?php
-    echo "<h1>Detalles de ", $clave, "</h1>";
+    echo "<h1 class=\"paginas\">Detalles de ", $clave, "</h1>";
 
     for ($j = 0; $j < count($datosusuario); $j ++) {
         switch ($j) {
