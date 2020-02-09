@@ -15,14 +15,17 @@ ob_start();
 <form name="f1" enctype="multipart/form-data" action="index.php?operacion=Nuevo" method="post">
 
 
-<!-- Se fija en el cliente el tamaño máximo en bytes ( no es seguro ) el limite máximo se debe tener el archivo 
-  Se debe controlar también en el servidor (php.ini)
+<!-- Se fija en el cliente el tamaï¿½o mï¿½ximo en bytes ( no es seguro ) el limite mï¿½ximo se debe tener el archivo 
+  Se debe controlar tambiï¿½n en el servidor (php.ini)
 -->
 <input type="hidden" name="MAX_FILE_SIZE" value="100000" /> <!--  100Kbytes -->
 
 <label>Elija el archivo a subir</label> <input name="archivo1" type="file"  /> <br />
 
+<p>
+<input type='button' name="orden" value='Volver' onclick="verFicheros()"> 
 <input type="submit" value="Subir" />
+</p>
 </form>
 </center>
 <?php

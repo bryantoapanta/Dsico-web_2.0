@@ -9,7 +9,6 @@ ob_start();
 	<h1 class="paginas">Ficheros Del Usuario <?=$_SESSION["user"]?></h1>
 	<table id="verusuarios">
 		<tr>
-		<th>Usuario</th>
 		<th>Nombre Fichero</th>
 		<th>Directorio</th>
 		<th>Tipo</th>
@@ -21,15 +20,21 @@ $auto = $_SERVER['PHP_SELF'];
 <?php foreach ($ficheros as $clave => $datosusuario) : ?>
 		
 		<tr>
-			<td class="users"><?= $clave ?></td> 
+			
 			<?php for  ($j=0; $j < count($datosusuario); $j++) :?>
      		<?php 
      		if ($j==0 || $j==1 || $j==3){
      		    echo "<td class=\"ocultos\">";
      		    echo $datosusuario[$j];
-     		}else{
+     		}
+     		else{
      		    echo "<td>";
      		    echo $datosusuario[$j];
+     		}
+     		
+     		if($j==3){//posicion 3 (tamaño archivo)
+     		    
+     		    echo ".KB";
      		}
      		 ?></td>
 			<?php endfor;?>

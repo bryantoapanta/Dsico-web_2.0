@@ -80,7 +80,7 @@ function modeloUserAdd($userid, $userdat)
     return true;
 }
 
-// AÑADIR DATOS DE FICHERO
+// Aï¿½ADIR DATOS DE FICHERO
 
 // Actualizar un nuevo usuario (boolean)
 function modeloUserUpdate($userid, $userdat)
@@ -184,26 +184,32 @@ function cumplerequisitos($clave1, $clave2, $user, $email, &$msg)
 // MODELO USER FICHEROS--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 function modeloUserGetFiles()
 {
-    $tuservista = [];
+    $vista = [];
     // REALIZAMOS UN FOR-EACH PARA SACAR LOS DATOS DEL USUARIO CONECTADO. EL USUARIO LO SACAMOS A ATRAVES DE $_SESSION["USER"]
-    foreach ($_SESSION['ficheros'] as $clave => $datosusuario) {
-        if ($clave == $_SESSION["user"]) {
-            $tuservista[$clave] = [
-                $datosusuario[0],
-                $datosusuario[1],
-                $datosusuario[2],
-                $datosusuario[3],
-               // $datosusuario[4]
-            ];
+    foreach ($_SESSION['ficheros'] as $usuario => $nombrefich) {
+
+        if ($usuario == $_SESSION["user"]) { //si el usuario coincide con el usuario de la sesion
+
+            foreach ($_SESSION['ficheros']['user01'] as $nombrefich => $datos) {//realizo un for each para recorrer la tabla de archivos con sus respectivos datos.
+                echo "<br>" . $nombrefich;
+                
+                $vista[$nombrefich] = [
+                    $datos[0],
+                    $datos[1],
+                    $datos[2],
+                    $datos[3]
+                    // $datosusuario[4]
+                ];
+            }
         }
     }
-    return $tuservista;
+    return $vista;
 }
 
-// AÑADIR DATOS DE FICHERO
-function modeloficheroAdd($userid, $userdat)
+// Aï¿½ADIR DATOS DE FICHERO
+function modeloficheroAdd($userid, $userdat, $nombrefichero)
 {
-    $_SESSION["ficheros"][$userid] = $userdat;
+    $_SESSION["ficheros"][$userid][$nombrefichero] = $userdat;
     return true;
 }
 
@@ -233,53 +239,59 @@ function modelouserSubirfichero($directorioSubida, $nombreFichero, $tipoFichero,
     }
 }
 
-//DESCARGAR FICHERO
-function modelouserDescargar($nombrefichero,$directorio,&$msg){
-    //OBTENGO EL NOMBRE DEL FICHERO
-        $fileName = basename($nombrefichero);
-    //OBTENGO LA RUTA COMPLETA DEL FICHERO    
-        $filePath = $directorio."\\".$fileName;
-    //SI NO ESTA VACIO Y EXISTE LA RUTA
-        if(!empty($fileName) && file_exists($filePath)){
-            // Define headers
-            header("Cache-Control: public");
-            header("Content-Description: File Transfer");
-            header("Content-Disposition: attachment; filename=$fileName");
-            header("Content-Type: application/zip");
-            header("Content-Transfer-Encoding: binary");
-            
-            // Read the file
-            readfile($filePath);
-            $msg="Archivo descargado";
-            exit;
-        }else{
-            $msg= 'The file does not exist.';
-            
-        }
-    
+// DESCARGAR FICHERO
+function modelouserDescargar($nombrefichero, $directorio, &$msg)
+{
+    // OBTENGO EL NOMBRE DEL FICHERO
+    $fileName = basename($nombrefichero);
+    // OBTENGO LA RUTA COMPLETA DEL FICHERO
+    $filePath = $directorio . "\\" . $fileName;
+    // SI NO ESTA VACIO Y EXISTE LA RUTA
+    if (! empty($fileName) && file_exists($filePath)) {
+        // Define headers
+        header("Cache-Control: public");
+        header("Content-Description: File Transfer");
+        header("Content-Disposition: attachment; filename=$fileName");
+        header("Content-Type: application/zip");
+        header("Content-Transfer-Encoding: binary");
+
+        // Read the file
+        readfile($filePath);
+        $msg = "Archivo descargado";
+        exit();
+    } else {
+        $msg = 'The file does not exist.';
+    }
 }
 
-//BORRAR DATOS FICHERO
-FUNCTION modeloUserDelfichero($user){
+// BORRAR DATOS FICHERO
+FUNCTION modeloUserDelfichero($user)
+{
     $borrado = false;
-    foreach ($_SESSION["ficheros"] as $clave => $valor) {
-        if ($clave == $user) {
-            unset($_SESSION["ficheros"][$clave]);
-            array_values($_SESSION["ficheros"]);
-            $borrado = true;
-        }
+    echo "hola";
+    foreach ($_SESSION["ficheros"] as $clave => $valor) {//recorremos el array en busca del usuario
+        
+            foreach ($_SESSION["ficheros"][$clave] as $nombrefich => $valor) {//borramos el archivo y sus datos
+                unset($_SESSION["ficheros"][$clave][$nombrefich]);
+                array_values($_SESSION["ficheros"][$clave]);
+                $borrado = true;
+                
+            }
+           
+        
     }
     return $borrado;
 }
 
-//RENOMBRAR ARCHIVO
-FUNCTION modeloUserRenamefichero($user,$nombre){
+// RENOMBRAR ARCHIVO
+FUNCTION modeloUserRenamefichero($user, $nombre)
+{
     $rename = false;
     foreach ($_SESSION["ficheros"] as $clave => $valor) {
         if ($clave == $user) {
-            //SI SE ENCUENTRA EL USUARIO, CAMBIAMOS EL NOMBRE DEL ARCHIVO POR EL NUEVO VALOR.
-          $_SESSION["ficheros"][$clave][0]=$nombre;
-          $rename=true;
+            // SI SE ENCUENTRA EL USUARIO, CAMBIAMOS EL NOMBRE DEL ARCHIVO POR EL NUEVO VALOR.
+            $_SESSION["ficheros"][$clave][0] = $nombre;
+            $rename = true;
         }
     }
     return $rename;
